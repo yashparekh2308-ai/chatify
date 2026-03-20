@@ -2,8 +2,11 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
+import { useChatStore } from "./useChatStore";
 
-const BASE_URL = import.meta.env.MODE === "development" ? "/" : "/";
+// Use same-origin so Vite proxy can forward /socket.io to backend in dev.
+// In production, we connect directly to the backend URL via VITE_API_URL.
+const BASE_URL = import.meta.env.MODE === "development" ? "/" : import.meta.env.VITE_API_URL;
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
@@ -96,9 +99,15 @@ export const useAuthStore = create((set, get) => ({
     socket.on("getOnlineUsers", (userIds) => {
       set({ onlineUsers: userIds });
     });
+
+    // ensure chat + call listeners are attached after socket exists
+    useChatStore.getState().subscribeToMessages();
   },
 
   disconnectSocket: () => {
-    if (get().socket?.connected) get().socket.disconnect();
+    const socket = get().socket;
+    if (!socket) return;
+    useChatStore.getState().unsubscribeFromMessages();
+    if (socket.connected) socket.disconnect();
   },
 }));

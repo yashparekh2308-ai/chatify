@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { SearchIcon } from "lucide-react";
 import { useChatStore } from "../store/useChatStore";
 
@@ -15,13 +15,8 @@ import CallOverlay from "../components/CallOverlay";
 import NoConversationPlaceholder from "../components/NoConversationPlaceholder";
 
 function ChatPage() {
-  const { activeTab, selectedChat, subscribeToMessages, unsubscribeFromMessages } = useChatStore();
+  const { activeTab, selectedChat } = useChatStore();
   const [searchQuery, setSearchQuery] = useState("");
-
-  useEffect(() => {
-    subscribeToMessages();
-    return () => unsubscribeFromMessages();
-  }, [subscribeToMessages, unsubscribeFromMessages]);
 
   return (
     <div className="relative w-full max-w-6xl h-[800px]">

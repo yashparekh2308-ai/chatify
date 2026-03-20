@@ -116,6 +116,7 @@ function ProfileHeader() {
               )}
             </div>
           </div>
+
           {/* LOGOUT BTN */}
           <button
             className="text-slate-400 hover:text-slate-200 transition-colors"

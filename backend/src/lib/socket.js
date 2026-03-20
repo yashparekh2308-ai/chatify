@@ -53,6 +53,11 @@ io.on("connection", (socket) => {
   // 1:1 audio call signaling
   socket.on("call:offer", ({ toUserId, offer }) => {
     const targetSocketId = userSocketMap[toUserId];
+    console.log("[call:offer]", {
+      from: userId,
+      to: toUserId,
+      delivered: Boolean(targetSocketId),
+    });
     
     // Store active call data on the socket to compute duration
     socket.activeCall = {
@@ -68,6 +73,13 @@ io.on("connection", (socket) => {
         offer,
       });
     }
+
+    // ack back to caller so we can debug delivery
+    socket.emit("call:offer:ack", {
+      toUserId,
+      delivered: Boolean(targetSocketId),
+      reason: targetSocketId ? "delivered" : "target_not_connected",
+    });
   });
 
   socket.on("call:answer", ({ toUserId, answer }) => {

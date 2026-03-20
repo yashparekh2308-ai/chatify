@@ -32,6 +32,7 @@ export const useChatStore = create((set, get) => ({
   remoteStream: null,
   peerConnection: null,
   iceCandidateQueue: [], // Queue for ICE candidates received before remote description is set
+  incomingOffer: null,
 
   toggleSound: () => {
     localStorage.setItem("isSoundEnabled", !get().isSoundEnabled);
@@ -355,7 +356,7 @@ export const useChatStore = create((set, get) => ({
       let localStream;
       try {
         localStream = await navigator.mediaDevices.getUserMedia(constraints);
-      } catch (err) {
+      } catch {
         toast.error("Unable to access camera/microphone");
         get().endCall();
         return;
@@ -448,7 +449,7 @@ export const useChatStore = create((set, get) => ({
       let localStream;
       try {
         localStream = await navigator.mediaDevices.getUserMedia(constraints);
-      } catch (err) {
+      } catch {
         toast.error("Unable to access camera/microphone");
         get().endCall();
         return;
@@ -540,6 +541,7 @@ export const useChatStore = create((set, get) => ({
 
   subscribeToMessages: () => {
     const socket = useAuthStore.getState().socket;
+    if (!socket) return;
 
     socket.on("newMessage", (newMessage) => {
       const { selectedChat, isSoundEnabled, notifications } = get();
@@ -716,6 +718,13 @@ export const useChatStore = create((set, get) => ({
       if (callState.peerId !== fromUserId) return;
       get().endCall();
     });
+
+    socket.on("call:offer:ack", ({ delivered, reason }) => {
+      if (!delivered) {
+        toast.error(`Incoming call not delivered (${reason || "unknown"}).`);
+        get().endCall();
+      }
+    });
   },
 
   unsubscribeFromMessages: () => {
@@ -727,5 +736,10 @@ export const useChatStore = create((set, get) => ({
     socket.off("messageReactionUpdated");
     socket.off("messageDeleted");
     socket.off("chatCleared");
+    socket.off("call:incoming");
+    socket.off("call:answer");
+    socket.off("call:ice-candidate");
+    socket.off("call:hangup");
+    socket.off("call:offer:ack");
   },
 }));

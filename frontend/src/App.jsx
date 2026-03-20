@@ -5,17 +5,22 @@ import SignUpPage from "./pages/SignUpPage";
 import { useAuthStore } from "./store/useAuthStore";
 import { useEffect } from "react";
 import PageLoader from "./components/PageLoader";
+import AdminDashboardPage from "./pages/AdminDashboardPage";
+import AdminLoginPage from "./pages/AdminLoginPage";
+import { useAdminStore } from "./store/useAdminStore";
 
 import { Toaster } from "react-hot-toast";
 
 function App() {
   const { checkAuth, isCheckingAuth, authUser } = useAuthStore();
+  const { checkAdminAuth, isCheckingAdmin, adminUser } = useAdminStore();
 
   useEffect(() => {
     checkAuth();
-  }, [checkAuth]);
+    checkAdminAuth();
+  }, [checkAuth, checkAdminAuth]);
 
-  if (isCheckingAuth) return <PageLoader />;
+  if (isCheckingAuth || isCheckingAdmin) return <PageLoader />;
 
   return (
     <div className="min-h-screen bg-slate-900 relative flex items-center justify-center p-4 overflow-hidden">
@@ -28,6 +33,9 @@ function App() {
         <Route path="/" element={authUser ? <ChatPage /> : <Navigate to={"/login"} />} />
         <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to={"/"} />} />
         <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to={"/"} />} />
+        {/* Admin portal routes (separate auth) */}
+        <Route path="/admin/login" element={!adminUser ? <AdminLoginPage /> : <Navigate to={"/admin"} />} />
+        <Route path="/admin" element={adminUser ? <AdminDashboardPage /> : <Navigate to={"/admin/login"} />} />
       </Routes>
 
       <Toaster />
