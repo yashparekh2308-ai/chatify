@@ -16,7 +16,16 @@ export const protectRoute = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
+    // jwt.verify throws for expired/malformed/invalid tokens — treat those as auth failures.
+    if (
+      error?.name === "TokenExpiredError" ||
+      error?.name === "JsonWebTokenError" ||
+      error?.name === "NotBeforeError"
+    ) {
+      return res.status(401).json({ message: "Unauthorized - Invalid or expired token" });
+    }
+
     console.log("Error in protectRoute middleware:", error);
-    res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "Internal server error" });
   }
 };

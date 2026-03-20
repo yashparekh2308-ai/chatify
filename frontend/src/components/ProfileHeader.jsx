@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { LogOutIcon, VolumeOffIcon, Volume2Icon } from "lucide-react";
+import { BellIcon, LogOutIcon, VolumeOffIcon, Volume2Icon } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 
@@ -7,7 +7,7 @@ const mouseClickSound = new Audio("/sounds/mouse-click.mp3");
 
 function ProfileHeader() {
   const { logout, authUser, updateProfile } = useAuthStore();
-  const { isSoundEnabled, toggleSound } = useChatStore();
+  const { isSoundEnabled, toggleSound, notifications, setActiveTab } = useChatStore();
   const [selectedImg, setSelectedImg] = useState(null);
 
   const fileInputRef = useRef(null);
@@ -67,6 +67,55 @@ function ProfileHeader() {
 
         {/* BUTTONS */}
         <div className="flex gap-4 items-center">
+          {/* NOTIFICATIONS */}
+          <div className="dropdown dropdown-end">
+            <div
+              tabIndex={0}
+              role="button"
+              className="btn btn-ghost btn-sm text-slate-400 hover:text-slate-200 relative"
+            >
+              <BellIcon className="size-5" />
+              {notifications.length > 0 && (
+                <span className="badge badge-xs badge-primary absolute -top-1 -right-1">
+                  {notifications.length > 9 ? "9+" : notifications.length}
+                </span>
+              )}
+            </div>
+            <div className="dropdown-content z-[2] mt-2 w-72 bg-slate-900 border border-slate-700/60 rounded-xl shadow-lg max-h-80 overflow-y-auto">
+              <div className="flex items-center justify-between px-3 py-2 border-b border-slate-700/60">
+                <span className="text-xs font-semibold text-slate-300">Notifications</span>
+                <button
+                  type="button"
+                  className="text-[11px] text-cyan-400 hover:text-cyan-300"
+                  onClick={() => setActiveTab("chats")}
+                >
+                  View chats
+                </button>
+              </div>
+              {notifications.length === 0 ? (
+                <div className="px-3 py-4 text-xs text-slate-500 text-center">
+                  No notifications yet.
+                </div>
+              ) : (
+                <ul className="menu menu-sm p-0">
+                  {notifications.map((n) => (
+                    <li key={n.id} className="px-2 py-1.5">
+                      <div className="text-xs text-slate-300 truncate">{n.title}</div>
+                      {n.preview && (
+                        <div className="text-[11px] text-slate-500 truncate">{n.preview}</div>
+                      )}
+                      <div className="text-[10px] text-slate-600 mt-0.5">
+                        {new Date(n.createdAt).toLocaleTimeString(undefined, {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
           {/* LOGOUT BTN */}
           <button
             className="text-slate-400 hover:text-slate-200 transition-colors"

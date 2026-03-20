@@ -3,8 +3,8 @@ import { useChatStore } from "../store/useChatStore";
 import UsersLoadingSkeleton from "./UsersLoadingSkeleton";
 import { useAuthStore } from "../store/useAuthStore";
 
-function ContactList() {
-  const { getAllContacts, allContacts, setSelectedUser, isUsersLoading } = useChatStore();
+function ContactList({ searchQuery = "" }) {
+  const { getAllContacts, allContacts, setSelectedChat, isUsersLoading } = useChatStore();
   const { onlineUsers } = useAuthStore();
 
   useEffect(() => {
@@ -13,13 +13,26 @@ function ContactList() {
 
   if (isUsersLoading) return <UsersLoadingSkeleton />;
 
+  const filteredContacts = allContacts.filter((contact) =>
+    contact.fullName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <>
-      {allContacts.map((contact) => (
+      {filteredContacts.map((contact) => (
         <div
           key={contact._id}
           className="bg-cyan-500/10 p-4 rounded-lg cursor-pointer hover:bg-cyan-500/20 transition-colors"
-          onClick={() => setSelectedUser(contact)}
+          onClick={() =>
+            setSelectedChat({
+              type: "dm",
+              _id: contact._id,
+              fullName: contact.fullName,
+              profilePic: contact.profilePic,
+              email: contact.email,
+              lastSeenAt: contact.lastSeenAt,
+            })
+          }
         >
           <div className="flex items-center gap-3">
             <div className={`avatar ${onlineUsers.includes(contact._id) ? "online" : "offline"}`}>
