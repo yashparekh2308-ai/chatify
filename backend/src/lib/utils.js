@@ -14,7 +14,7 @@ export const generateToken = (userId, res) => {
   res.cookie("jwt", token, {
     maxAge: 7 * 24 * 60 * 60 * 1000, // MS
     httpOnly: true, // prevent XSS attacks: cross-site scripting
-    sameSite: "strict", // CSRF attacks
+    sameSite: ENV.NODE_ENV === "development" ? "strict" : "none", // CSRF attacks
     secure: ENV.NODE_ENV === "development" ? false : true,
   });
 
@@ -34,7 +34,7 @@ export const generateAdminToken = (userId, res) => {
   res.cookie("admin_jwt", token, {
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    sameSite: "strict",
+    sameSite: ENV.NODE_ENV === "development" ? "strict" : "none",
     secure: ENV.NODE_ENV === "development" ? false : true,
   });
 

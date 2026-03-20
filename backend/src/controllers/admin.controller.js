@@ -5,6 +5,7 @@ import Conversation from "../models/Conversation.js";
 import Status from "../models/Status.js";
 import bcrypt from "bcryptjs";
 import { generateAdminToken } from "../lib/utils.js";
+import { ENV } from "../lib/env.js";
 
 export const getDashboardStats = async (req, res) => {
   try {
@@ -104,7 +105,12 @@ export const adminMe = async (req, res) => {
 };
 
 export const adminLogout = async (req, res) => {
-  res.cookie("admin_jwt", "", { maxAge: 0, httpOnly: true, sameSite: "strict" });
+  res.cookie("admin_jwt", "", { 
+    maxAge: 0, 
+    httpOnly: true, 
+    sameSite: ENV.NODE_ENV === "development" ? "strict" : "none",
+    secure: ENV.NODE_ENV === "development" ? false : true,
+  });
   res.status(200).json({ ok: true });
 };
 
