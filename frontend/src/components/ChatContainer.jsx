@@ -5,7 +5,7 @@ import ChatHeader from "./ChatHeader";
 import NoChatHistoryPlaceholder from "./NoChatHistoryPlaceholder";
 import MessageInput from "./MessageInput";
 import MessagesLoadingSkeleton from "./MessagesLoadingSkeleton";
-import { CornerDownLeftIcon, SmilePlusIcon, CheckIcon, CheckCheckIcon, FileTextIcon, DownloadIcon } from "lucide-react";
+import { CornerDownLeftIcon, SmilePlusIcon, CheckIcon, CheckCheckIcon, FileTextIcon, DownloadIcon, TrashIcon } from "lucide-react";
 
 const QUICK_REACTIONS = ["👍", "❤️", "😂", "😮", "😢", "🙏"];
 
@@ -24,6 +24,7 @@ function ChatContainer() {
   const messageEndRef = useRef(null);
   const scrollContainerRef = useRef(null);
   const [previewMessage, setPreviewMessage] = useState(null);
+  const [messageToDelete, setMessageToDelete] = useState(null);
   const [prevScrollHeight, setPrevScrollHeight] = useState(0);
 
   useEffect(() => {
@@ -97,6 +98,15 @@ function ChatContainer() {
                       title="Reply"
                     >
                       <CornerDownLeftIcon className="w-3 h-3" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setMessageToDelete(msg)}
+                      className="btn btn-xs bg-slate-900/80 border border-slate-700/60 text-slate-200 hover:bg-red-900/80 hover:text-red-300 transition-colors"
+                      title="Delete"
+                    >
+                      <TrashIcon className="w-3 h-3" />
                     </button>
 
                     <div className="dropdown dropdown-end">
@@ -211,6 +221,49 @@ function ChatContainer() {
 
       <MessageInput />
 
+      {messageToDelete && (
+        <div className="modal modal-open">
+          <div className="modal-box max-w-sm bg-slate-900 border border-slate-700/60">
+            <h3 className="font-bold text-lg text-slate-100 mb-2">Delete Message</h3>
+            <p className="text-slate-300 mb-6 text-sm">
+              Are you sure you want to delete this message? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-2 flex-wrap">
+              <button
+                type="button"
+                className="btn btn-sm btn-ghost text-slate-300"
+                onClick={() => setMessageToDelete(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700"
+                onClick={async () => {
+                  await useChatStore.getState().deleteMessage(messageToDelete._id, false);
+                  setMessageToDelete(null);
+                }}
+              >
+                Delete for me
+              </button>
+              {messageToDelete.senderId === authUser._id && (
+                <button
+                  type="button"
+                  className="btn btn-sm bg-red-600/90 text-white hover:bg-red-600 border-none"
+                  onClick={async () => {
+                    await useChatStore.getState().deleteMessage(messageToDelete._id, true);
+                    setMessageToDelete(null);
+                  }}
+                >
+                  Delete for everyone
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="modal-backdrop" onClick={() => setMessageToDelete(null)} />
+        </div>
+      )}
+
       {previewMessage && (
         <div className="modal modal-open">
           <div className="modal-box max-w-3xl bg-slate-900 border border-slate-700/60">
@@ -271,47 +324,7 @@ function ChatContainer() {
                 >
                   <DownloadIcon className="w-4 h-4" /> Download Document
                 </a>
-              ) : (
-                <div /> // Placeholder to keep delete buttons on the right
-              )}
-
-              {previewMessage.senderId === authUser._id ? (
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    className="btn btn-sm bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700"
-                    onClick={async () => {
-                      await useChatStore.getState().deleteMessage(previewMessage._id, false);
-                      setPreviewMessage(null);
-                    }}
-                  >
-                    Delete for me
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-sm bg-red-600/90 text-white hover:bg-red-600"
-                    onClick={async () => {
-                      if (window.confirm("Delete this message for everyone?")) {
-                        await useChatStore.getState().deleteMessage(previewMessage._id, true);
-                        setPreviewMessage(null);
-                      }
-                    }}
-                  >
-                    Delete for everyone
-                  </button>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  className="btn btn-sm bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700"
-                  onClick={async () => {
-                    await useChatStore.getState().deleteMessage(previewMessage._id, false);
-                    setPreviewMessage(null);
-                  }}
-                >
-                  Delete for me
-                </button>
-              )}
+              ) : null}
             </div>
           </div>
           <div className="modal-backdrop" onClick={() => setPreviewMessage(null)} />
