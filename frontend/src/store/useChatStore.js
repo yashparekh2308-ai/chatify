@@ -309,6 +309,8 @@ export const useChatStore = create((set, get) => ({
       text: messageData.text,
       image: messageData.image,
       audio: messageData.audio,
+      video: messageData.video,
+      document: messageData.document,
       createdAt: new Date().toISOString(),
       isOptimistic: true, // flag to identify optimistic messages (optional)
       replyTo,

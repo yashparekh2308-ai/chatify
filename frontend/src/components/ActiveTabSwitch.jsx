@@ -4,11 +4,11 @@ function ActiveTabSwitch() {
   const { activeTab, setActiveTab } = useChatStore();
 
   return (
-    <div className="tabs tabs-boxed bg-transparent p-2 m-2">
+    <div className="flex bg-slate-900/50 rounded-lg p-1 mx-2 my-2 overflow-x-auto scrollbar-hide">
       <button
         onClick={() => setActiveTab("chats")}
-        className={`tab ${
-          activeTab === "chats" ? "bg-cyan-500/20 text-cyan-400" : "text-slate-400"
+        className={`flex-1 py-1.5 px-2 text-sm font-medium rounded-md transition-all whitespace-nowrap ${
+          activeTab === "chats" ? "bg-cyan-500/20 text-cyan-400 shadow-sm" : "text-slate-400 hover:text-slate-300 hover:bg-slate-800/50"
         }`}
       >
         Chats
@@ -16,8 +16,8 @@ function ActiveTabSwitch() {
 
       <button
         onClick={() => setActiveTab("contacts")}
-        className={`tab ${
-          activeTab === "contacts" ? "bg-cyan-500/20 text-cyan-400" : "text-slate-400"
+        className={`flex-1 py-1.5 px-2 text-sm font-medium rounded-md transition-all whitespace-nowrap ${
+          activeTab === "contacts" ? "bg-cyan-500/20 text-cyan-400 shadow-sm" : "text-slate-400 hover:text-slate-300 hover:bg-slate-800/50"
         }`}
       >
         Contacts
@@ -25,8 +25,8 @@ function ActiveTabSwitch() {
 
       <button
         onClick={() => setActiveTab("groups")}
-        className={`tab ${
-          activeTab === "groups" ? "bg-cyan-500/20 text-cyan-400" : "text-slate-400"
+        className={`flex-1 py-1.5 px-2 text-sm font-medium rounded-md transition-all whitespace-nowrap ${
+          activeTab === "groups" ? "bg-cyan-500/20 text-cyan-400 shadow-sm" : "text-slate-400 hover:text-slate-300 hover:bg-slate-800/50"
         }`}
       >
         Groups
@@ -34,8 +34,8 @@ function ActiveTabSwitch() {
 
       <button
         onClick={() => setActiveTab("calls")}
-        className={`tab ${
-          activeTab === "calls" ? "bg-cyan-500/20 text-cyan-400" : "text-slate-400"
+        className={`flex-1 py-1.5 px-2 text-sm font-medium rounded-md transition-all whitespace-nowrap ${
+          activeTab === "calls" ? "bg-cyan-500/20 text-cyan-400 shadow-sm" : "text-slate-400 hover:text-slate-300 hover:bg-slate-800/50"
         }`}
       >
         Calls
@@ -43,8 +43,8 @@ function ActiveTabSwitch() {
 
       <button
         onClick={() => setActiveTab("status")}
-        className={`tab ${
-          activeTab === "status" ? "bg-cyan-500/20 text-cyan-400" : "text-slate-400"
+        className={`flex-1 py-1.5 px-2 text-sm font-medium rounded-md transition-all whitespace-nowrap ${
+          activeTab === "status" ? "bg-cyan-500/20 text-cyan-400 shadow-sm" : "text-slate-400 hover:text-slate-300 hover:bg-slate-800/50"
         }`}
       >
         Status

@@ -162,12 +162,12 @@ export const getMessagesByUserId = async (req, res) => {
 
 export const sendMessage = async (req, res) => {
   try {
-    const { text, image, audio, replyTo } = req.body;
+    const { text, image, audio, video, document, replyTo } = req.body;
     const { id: receiverId } = req.params;
     const senderId = req.user._id;
 
-    if (!text && !image && !audio) {
-      return res.status(400).json({ message: "Text, image, or audio is required." });
+    if (!text && !image && !audio && !video && !document) {
+      return res.status(400).json({ message: "Text, image, audio, video or document is required." });
     }
     if (senderId.equals(receiverId)) {
       return res.status(400).json({ message: "Cannot send messages to yourself." });
@@ -189,6 +189,8 @@ export const sendMessage = async (req, res) => {
 
     let imageUrl;
     let audioUrl;
+    let videoUrl;
+    let documentObj = null;
     
     if (image) {
       // upload base64 image to cloudinary
@@ -205,6 +207,29 @@ export const sendMessage = async (req, res) => {
       audioUrl = uploadResponse.secure_url;
     }
 
+    if (video) {
+       // upload base64 video to cloudinary
+       const uploadResponse = await cloudinary.uploader.upload(video, {
+         resource_type: "video",
+       });
+       videoUrl = uploadResponse.secure_url;
+    }
+
+    if (document) {
+       // document contains base64 data, name, size
+       // We must use resource_type: "raw" so that Cloudinary does not try to process PDFs as images
+       const uploadResponse = await cloudinary.uploader.upload(document.base64, { 
+         resource_type: "raw",
+         public_id: document.name,
+       });
+       documentObj = {
+         url: uploadResponse.secure_url,
+         name: document.name,
+         size: document.size,
+         format: document.format,
+       };
+    }
+
     const newMessage = new Message({
       conversationId: null,
       senderId,
@@ -212,6 +237,8 @@ export const sendMessage = async (req, res) => {
       text,
       image: imageUrl,
       audio: audioUrl,
+      video: videoUrl,
+      document: documentObj,
       replyTo: replyTo || null,
     });
 

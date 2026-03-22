@@ -5,7 +5,7 @@ import ChatHeader from "./ChatHeader";
 import NoChatHistoryPlaceholder from "./NoChatHistoryPlaceholder";
 import MessageInput from "./MessageInput";
 import MessagesLoadingSkeleton from "./MessagesLoadingSkeleton";
-import { CornerDownLeftIcon, SmilePlusIcon, CheckIcon, CheckCheckIcon } from "lucide-react";
+import { CornerDownLeftIcon, SmilePlusIcon, CheckIcon, CheckCheckIcon, FileTextIcon, DownloadIcon } from "lucide-react";
 
 const QUICK_REACTIONS = ["👍", "❤️", "😂", "😮", "😢", "🙏"];
 
@@ -132,7 +132,7 @@ function ChatContainer() {
                       onClick={() => handleScrollToMessage(msg.replyTo._id)}
                     >
                       <p className="font-semibold truncate max-w-[220px]">
-                        Replying to: {msg.replyTo.text || (msg.replyTo.image ? "Image" : "Voice Note")}
+                        Replying to: {msg.replyTo.text || (msg.replyTo.image ? "Image" : msg.replyTo.video ? "Video" : msg.replyTo.document ? "Document" : "Voice Note")}
                       </p>
                     </div>
                   )}
@@ -143,6 +143,23 @@ function ChatContainer() {
                       className="rounded-lg max-h-48 object-cover cursor-pointer hover:opacity-90 transition-opacity"
                       onClick={() => setPreviewMessage(msg)}
                     />
+                  ) : msg.video ? (
+                    <video
+                      src={msg.video}
+                      controls
+                      className="rounded-lg max-h-64 object-cover cursor-pointer"
+                    />
+                  ) : msg.document ? (
+                    <div 
+                      className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-black/10 transition-colors ${msg.senderId === authUser._id ? "bg-cyan-700/50 border-cyan-500/30 text-white" : "bg-slate-700/50 border-slate-600 text-slate-200"}`}
+                      onClick={() => setPreviewMessage(msg)}
+                    >
+                      <FileTextIcon className="w-8 h-8 text-cyan-300 shrink-0" />
+                      <div className="flex flex-col truncate max-w-[180px]">
+                        <span className="text-sm font-medium truncate">{msg.document.name}</span>
+                        <span className="text-xs opacity-70">{(msg.document.size / 1024 / 1024).toFixed(2)} MB • {msg.document.format || 'DOC'}</span>
+                      </div>
+                    </div>
                   ) : msg.audio ? (
                     <div className="mt-2 text-slate-200">
                       <audio controls src={msg.audio} className="h-10 outline-none max-w-[220px] rounded-full custom-audio" />
@@ -214,15 +231,23 @@ function ChatContainer() {
               </button>
             </div>
 
-            <div className="mb-4">
+            <div className="mb-4 flex flex-col items-center">
               {previewMessage.image ? (
                 <img
                   src={previewMessage.image}
                   alt="Full preview"
-                  className="w-full max-h-[70vh] object-contain rounded-lg border border-slate-800 shadow-xl"
+                  className="w-auto max-h-[70vh] object-contain rounded-lg border border-slate-800 shadow-xl"
                 />
+              ) : previewMessage.document ? (
+                <div className="bg-slate-800/80 p-8 rounded-xl border border-slate-700 w-full flex flex-col items-center gap-4">
+                  <FileTextIcon className="w-16 h-16 text-cyan-500" />
+                  <div className="text-center">
+                    <p className="text-lg text-slate-200 font-medium mb-1">{previewMessage.document.name}</p>
+                    <p className="text-sm text-slate-400">{(previewMessage.document.size / 1024 / 1024).toFixed(2)} MB</p>
+                  </div>
+                </div>
               ) : (
-                <div className="bg-slate-800 p-6 rounded-xl border border-slate-700">
+                <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 w-full">
                   <p className="text-lg text-slate-200 whitespace-pre-wrap">{previewMessage.text}</p>
                 </div>
               )}
@@ -235,7 +260,16 @@ function ChatContainer() {
                   download
                   className="btn btn-sm bg-slate-800 text-slate-100 border border-slate-700 hover:bg-slate-700"
                 >
-                  Download
+                  Download Image
+                </a>
+              ) : previewMessage.document ? (
+                <a
+                  href={previewMessage.document.url}
+                  download={previewMessage.document.name}
+                  target="_blank" rel="noopener noreferrer"
+                  className="btn btn-sm bg-slate-800 text-slate-100 border border-slate-700 hover:bg-slate-700 flex items-center gap-2"
+                >
+                  <DownloadIcon className="w-4 h-4" /> Download Document
                 </a>
               ) : (
                 <div /> // Placeholder to keep delete buttons on the right

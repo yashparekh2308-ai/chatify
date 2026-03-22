@@ -29,6 +29,15 @@ const messageSchema = new mongoose.Schema(
     audio: {
       type: String, // Cloudinary URL for voice notes
     },
+    video: {
+      type: String, // Cloudinary URL for videos
+    },
+    document: {
+      url: { type: String }, // Cloudinary URL for documents
+      name: { type: String },
+      size: { type: Number },
+      format: { type: String },
+    },
     seen: {
       type: Boolean,
       default: false,
