@@ -21,6 +21,7 @@ export const useChatStore = create((set, get) => ({
   isSoundEnabled: JSON.parse(localStorage.getItem("isSoundEnabled")) === true,
   mutedChatKeys: JSON.parse(localStorage.getItem("mutedChatKeys") || "[]"),
   notifications: [],
+  blockedUsers: [],
   callState: {
     status: "idle", // "idle" | "calling" | "ringing" | "in-call"
     peerId: null,
@@ -115,7 +116,7 @@ export const useChatStore = create((set, get) => ({
       if (get().selectedChat?.type === "dm" && get().selectedChat._id === userId) {
         set({ selectedChat: null, messages: [], replyTo: null });
       }
-      await Promise.all([get().getAllContacts(), get().getMyChatPartners()]);
+      await Promise.all([get().getAllContacts(), get().getMyChatPartners(), get().getBlockedUsers()]);
       toast.success("User blocked");
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to block user");
@@ -125,10 +126,19 @@ export const useChatStore = create((set, get) => ({
   unblockUser: async (userId) => {
     try {
       await axiosInstance.post(`/users/unblock/${userId}`);
-      await Promise.all([get().getAllContacts(), get().getMyChatPartners()]);
+      await Promise.all([get().getAllContacts(), get().getMyChatPartners(), get().getBlockedUsers()]);
       toast.success("User unblocked");
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to unblock user");
+    }
+  },
+
+  getBlockedUsers: async () => {
+    try {
+      const res = await axiosInstance.get("/users/blocked");
+      set({ blockedUsers: res.data });
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to load blocked users");
     }
   },
 

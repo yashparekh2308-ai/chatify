@@ -1,7 +1,8 @@
 import { useState, useRef } from "react";
-import { BellIcon, LogOutIcon, VolumeOffIcon, Volume2Icon } from "lucide-react";
+import { BellIcon, LogOutIcon, VolumeOffIcon, Volume2Icon, BanIcon } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
+import BlockedUsersModal from "./BlockedUsersModal";
 
 const mouseClickSound = new Audio("/sounds/mouse-click.mp3");
 
@@ -117,6 +118,15 @@ function ProfileHeader() {
             </div>
           </div>
 
+          {/* BLOCKED USERS BTN */}
+          <button
+            className="btn btn-ghost btn-sm text-slate-400 hover:text-slate-200"
+            title="Blocked Users"
+            onClick={() => document.getElementById("blocked_users_modal").showModal()}
+          >
+            <BanIcon className="size-5" />
+          </button>
+
           {/* LOGOUT BTN */}
           <button
             className="text-slate-400 hover:text-slate-200 transition-colors"
@@ -143,6 +153,7 @@ function ProfileHeader() {
           </button>
         </div>
       </div>
+      <BlockedUsersModal />
     </div>
   );
 }
